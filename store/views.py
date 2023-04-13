@@ -49,3 +49,10 @@ class BookDetailView(DetailView):
 class BookListView(ListView):
     model = Books
     template_name = 'book_list.html'
+
+    def get_queryset(self):
+        qs = super(BookListView, self).get_queryset()
+        if 'name' in self.kwargs:
+            qs = qs.filter(name__startswith=self.kwargs['name'])
+        qs = qs.order_by('description')
+        return qs
