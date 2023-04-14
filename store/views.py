@@ -89,3 +89,7 @@ class BookUpdateView(UpdateView):
         return reverse_lazy('store:edit_book', kwargs={'pk': self.object.id})
 
 
+class BookDeleteView(DeleteView):
+    model = Books
+    template_name = 'delete_book.html'
+    success_url = reverse_lazy('store:list_books')
