@@ -9,7 +9,7 @@ from django. views.generic.edit import (
 )
 from . import forms
 from datetime import datetime
-from .models import Books
+from .models import Books,Pictures
 from django.urls import reverse_lazy
 from django.contrib.messages.views import SuccessMessageMixin
 
@@ -97,6 +97,8 @@ class BookUpdateView(SuccessMessageMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         picture_form = forms.PictureUploadForm()
+        pictures = Pictures.objects.filter_by_book(book=self.object)
+        context['pictures'] = pictures
         context['picture_form'] = picture_form
         return context
     
