@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.base import(
     View,TemplateView,RedirectView
 )
@@ -12,6 +12,7 @@ from datetime import datetime
 from .models import Books,Pictures
 from django.urls import reverse_lazy
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib import messages
 
 
 
@@ -143,3 +144,12 @@ class BookRedirectView(RedirectView):
             return reverse_lazy('store:detail_book', kwargs={'pk':kwargs['pk']})
 
         return reverse_lazy('store:edit_book', kwargs={'pk':book.pk})
+
+def delete_picture(request, pk):
+    picture = get_object_or_404(Pictures, pk=pk)
+    picture.delete()
+    # import os
+    # if os.path.isfile(picture.picture.path):
+    #     os.remove(picture.picture.path)
+    messages.success(request, '画像を削除しました')
+    return redirect('store:edit_book', pk=picture.book.id)
