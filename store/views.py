@@ -11,6 +11,7 @@ from . import forms
 from datetime import datetime
 from .models import Books
 from django.urls import reverse_lazy
+from django.contrib.messages.views import SuccessMessageMixin
 
 
 
@@ -78,15 +79,36 @@ class BookCreateView(CreateView):
         initial['name'] = 'sample'
         return initial
     
-class BookUpdateView(UpdateView):
+class BookUpdateView(SuccessMessageMixin, UpdateView):
 
     template_name = 'update_book.html'
     model = Books
     form_class = forms.BookUpdateForm
+    success_message = '更新に成功しました'
 
     def get_success_url(self):
         print(self.object)
         return reverse_lazy('store:edit_book', kwargs={'pk': self.object.id})
+    
+    def get_success_message(self, cleaned_data):
+        print(cleaned_data)
+        return cleaned_data.get('name') + 'を更新しました'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        picture_form = forms.PictureUploadForm()
+        context['picture_form'] = picture_form
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        # 画像をアップロードする処理を書く
+        picture_form = forms.PictureUploadForm(request.POST or None, request.FILES or None)
+        if picture_form.is_valid() and request.FILES:
+            book = self.get_object() #更新中のBookがどのBookなのか
+            picture_form.save(book=book)
+
+
+        return super(BookUpdateView, self).post(request, *args, **kwargs)
 
 
 class BookDeleteView(DeleteView):
